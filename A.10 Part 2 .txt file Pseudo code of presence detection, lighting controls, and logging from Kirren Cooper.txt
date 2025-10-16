@@ -1,0 +1,45 @@
+START PROGRAM
+
+Setup distance sensor (trigger=4, echo=17)
+Setup LEDs: red, green, yellow
+Setup RGB room light and control button
+Use pigpio factory for accurate readings
+
+Create MotionDetector:
+
+Take 50 samples for baseline (no one in front)
+
+Use moving median filter for noise
+
+Motion threshold = 15 cm
+
+Room light stays on 5 sec after motion stops
+
+Button toggles light system ON/OFF
+Background thread checks every second:
+If light is ON and no motion for 5 sec → turn off light
+
+MAIN LOOP:
+Get filtered distance reading in cm
+Compare with baseline distance
+If change > threshold:
+ If motion just started:
+  Start motion block timer
+  Turn ON red LED, turn OFF green
+  If light system enabled → turn ON room light
+  Log motion start
+ Else:
+  Count as continued motion
+  Update last motion time
+Else:
+ If motion was ongoing:
+  End motion block, save to log file
+  Turn ON green LED, turn OFF red
+Print current distance, change, motion state, and light status
+Wait 0.3 sec
+
+If Ctrl+C pressed:
+Stop background thread
+End motion block if active
+Turn OFF all LEDs and lights
+Exit program
